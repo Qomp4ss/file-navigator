@@ -83,7 +83,7 @@ class PathFinder:
         for d in directories:
             self.del_dir(d)
             
-    @lru_cache
+    @lru_cache(maxsize=None)
     def resolve_ext(self, string):
         if '.' in string:
             return string.replace('.', '')
@@ -106,7 +106,7 @@ class PathFinder:
                 and getattr(self.matching_eng, ext_type)(self.resolve_ext(Path(file).suffix), ext)
                 and getattr(self.matching_eng, name_type)(Path(file).stem, name))
 
-    @lru_cache
+    @lru_cache(maxsize=None)
     def find(self, name, ext, name_type = "eq", ext_type = "eq"):
         self._matches.extend(
                 set(

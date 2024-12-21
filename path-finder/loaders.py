@@ -9,7 +9,5 @@ PDLoader = BaseLoader({pd.read_csv: ['.csv', '.txt'],
                        pd.read_parquet:'.gzip',
                        pd.read_pickle: '.pkl',
                        pd.read_sas: '.sas7bdat',
-                       pd.read_spss: '.sav',
                        pd.read_stata: '.dta',
-                       pd.read_xml: '.xml',
                        pd.read_html: '.html'})
