@@ -1,11 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 20 16:25:39 2024
-
-@author: BB
-"""
-
-from path_finder import PathFinder
+from operators import PathFinder
 from loaders import PDLoader
 
     
