@@ -3,10 +3,10 @@ requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "path-finder"          # The package name
-version = "0.1.0"            # The version of the package
+name = "f-path-finder"          # The package name
 description = "Flexible directory scanner, file path manager, and customizable file loader—all in one"
 readme = "README.md"         # The README file (Markdown or reStructuredText)
+dynamic = ["version"]
 license = { file = "LICENSE" }  # License file
 authors = [
     { name = "Qomp4ss", email = "imaggine@gmail.com" }
