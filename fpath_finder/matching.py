@@ -1,5 +1,4 @@
 from pathlib import Path
-import fnmatch
 import re
 
 def eq(string, pattern):
