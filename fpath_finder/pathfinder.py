@@ -114,7 +114,7 @@ class PathFinder:
                 and getattr(self.matching_eng, name_type)(Path(file).stem, name))
 
     @lru_cache(maxsize=None)
-    def _get_obj_func(obj):
+    def _get_obj_func(self, obj):
         return ', '.join(
             i[0] for i in inspect.getmembers(obj, predicate=inspect.isfunction)
             )
@@ -122,10 +122,10 @@ class PathFinder:
     @lru_cache(maxsize=None)
     def find(self, name, ext, name_type = 'eq', ext_type = 'eq'):
         if not isinstance(name, str):
-            raise ValueError('"name" argument must be string type')     
+            raise TypeError('"name" argument must be string type')     
             
-        if not isinstance(name, str):
-            raise ValueError('"ext" argument must be string type')     
+        if not isinstance(ext, str):
+            raise TypeError('"ext" argument must be string type')     
             
         if not hasattr(matching, name_type):
             raise ValueError(f'"name_type" argument must be one of {self._get_obj_func(matching)}')
