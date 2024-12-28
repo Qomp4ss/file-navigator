@@ -21,69 +21,6 @@ class TestPathManager(unittest.TestCase):
                       'usdpln.txt','xaggbp.txt','xauchf.txt',
                       'xaueur.txt','xaugbp.txt']
 
-        # mock_paths = [
-        #     [
-        #         'C:\\mock_directory', 
-        #         ['CURR', 'AUD', 'CAD', 'CHF', 'EUR', 'GBP', 'JPY', 'NZD', 'USD', 'XAG', 'XAU'], 
-        #         ['Forex.xlsx']
-        #         ],
-        #     [
-        #         'C:\\mock_directory\\CURR', 
-        #         [], 
-        #         ['EURGBP_H4.csv', 'EURGBP_M5.csv', 'EURJPY_H1.csv', 'EURJPY_M30.csv', 'EURUSD_M5.csv']
-        #         ], 
-        #     [
-        #         'C:\\mock_directory\\AUD', 
-        #         [], 
-        #         ['audcad.txt', 'audchf.txt', 'audusd.txt']
-        #         ], 
-        #     [
-        #         'C:\\mock_directory\\CAD', 
-        #         [], 
-        #         ['cadaud.txt', 'cadeur.txt', 'cadjpy.txt', 'cadpln.txt', 'cadusd.txt']
-        #         ], 
-        #     [
-        #         'C:\\mock_directory\\CHF', 
-        #         [], 
-        #         ['chfgbp.txt', 'chfpln.txt', 'chfusd.txt']
-        #         ], 
-        #     [
-        #         'C:\\mock_directory\\EUR', 
-        #         [], 
-        #         ['euraud.txt', 'eurchf.txt', 'eurgbp.txt', 'eurjpy.txt', 'eurpln.txt']
-        #         ], 
-            
-        #     [
-        #         'C:\\mock_directory\\GBP', 
-        #         [], 
-        #         ['gbpcad.txt', 'gbpchf.txt', 'gbpeur.txt', 'gbpjpy.txt', 'gbppln.txt']
-        #      ], 
-        #     [
-        #         'C:\\mock_directory\\JPY', 
-        #         [], 
-        #         ['jpyaud.txt', 'jpypln.txt']
-        #         ], 
-        #     [
-        #         'C:\\mock_directory\\NZD', 
-        #         [], 
-        #         ['nzdusd.txt']
-        #         ], 
-        #     [
-        #         'C:\\mock_directory\\USD', 
-        #         [], 
-        #         ['usdcad.txt', 'usdchf.txt', 'usdjpy.txt', 'usdpln.txt']
-        #         ], 
-        #     [
-        #         'C:\\mock_directory\\XAG', 
-        #         [], 
-        #         ['xaggbp.txt']
-        #         ], 
-        #     [
-        #         'C:\\mock_directory\\XAU', 
-        #         [], 
-        #         ['xauchf.txt', 'xaueur.txt', 'xaugbp.txt']
-        #         ]
-        #     ]
                 
         mock_paths = [
             (mock_dir, f)   if 'xlsx' in f 
