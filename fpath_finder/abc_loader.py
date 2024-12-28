@@ -19,10 +19,10 @@ class BaseLoader(ABLoader):
     def _add(self, func, file_type):
         
         if not callable(func):
-            raise ValueError(f"{func} is not callable")
+            raise TypeError(f"{func} is not callable")
             
         if not isinstance(file_type, (str, tuple, list)):
-            raise ValueError(f"{file_type} must be passed as either string, tuple or list")
+            raise TypeError(f"{file_type} must be passed as either string, tuple or list")
                 
         if isinstance(file_type, (list, tuple)):
             for ft in set(file_type):
