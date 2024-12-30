@@ -37,7 +37,7 @@ class BaseLoader(ABLoader):
     def _inspect(self, function):
         return inspect.signature(function).parameters.keys()
     
-    @lru_cache(maxsize=None)            
+    # @lru_cache(maxsize=None)            
     def load(self, path, kwargs):
         f = self._mapp[Path(path).suffix]
         return f(path, **{k:v for k, v in kwargs.items() if k in self._inspect(f)})
