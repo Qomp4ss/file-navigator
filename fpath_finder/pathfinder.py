@@ -6,7 +6,7 @@ from . import matching
 import inspect
 
 
-class PathManager:
+class _PathManager:
     
     def __init__(self, paths, reader = None):
         if isinstance(paths, tuple):
@@ -61,7 +61,7 @@ class PathFinder:
     def __init__(self, init_dirs = None):
         self.directories = {}
         self.matching_eng = matching
-        self.pm = PathManager
+        self.pm = _PathManager
 
         
         if init_dirs is not None:
