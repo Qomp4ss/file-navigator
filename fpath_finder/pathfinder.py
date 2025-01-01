@@ -1,9 +1,10 @@
 import os
 from itertools import chain, filterfalse, groupby
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 from . import matching
 import inspect
+
 
 
 class _PathManager:
@@ -19,7 +20,7 @@ class _PathManager:
         return len(self._paths)
                   
     def load(self, reader, **kwargs):
-        return [reader.load(os.path.join(*p), kwargs) for p in self._paths]
+        return [reader.load(os.path.join(*p), **kwargs) for p in self._paths]
     
     def select_paths(self, pattern, match_type = 'eq'):
         return self.__class__(
@@ -35,24 +36,36 @@ class _PathManager:
     def paths(self):
         return list(tuple(reversed(p)) for p in self._paths)
 
-    def groupby(self, by):
+    def groupby(self, by, pattern = None, match_type = 'eq'):
         return {
             k:self.__class__(list(g)) for k, g in groupby(
                 sorted(
-                    self._paths, key= getattr(self, by)
-                    ),  getattr(self, by)
+                    self._paths, key= partial(getattr(self, by), pattern, match_type)
+                    ),   partial(getattr(self, by), pattern, match_type)
                 )
             }
     
     #Sorting functions   
-    def path(self, it):
-        return it[0]
+    def path(self, pattern, match_type, it):
+        if pattern is None:
+            return it[0]
+        else:
+            return getattr(self.matching_eng, match_type)(it[0], pattern)
 
-    def name(self, it):
-        return Path(it[1]).stem
+    def name(self, pattern, match_type, it):
+        if pattern is None:
+            return Path(it[1]).stem
+        else:
+            return getattr(self.matching_eng, match_type)(Path(it[1]).stem, pattern)
 
-    def ext(self, it):
-        return Path(it[1]).suffix
+
+    def ext(self, pattern, match_type, it):
+        if pattern is None:
+            return Path(it[1]).suffix
+        else:
+            return getattr(self.matching_eng, match_type)(Path(it[1]).suffix, pattern)
+        
+
       
         
 
