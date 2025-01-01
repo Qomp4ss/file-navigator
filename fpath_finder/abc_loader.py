@@ -15,22 +15,26 @@ class BaseLoader(ABLoader):
         self._mapp = {}
         if func_ftype_dict is not None:
             self.add_functions(func_ftype_dict)
-            
+        
     def _add(self, func, file_type):
         
         if not callable(func):
             raise TypeError(f"{func} is not callable")
             
-        if not isinstance(file_type, (str, tuple, list)):
-            raise TypeError(f"{file_type} must be passed as either string, tuple or list")
+        if not isinstance(file_type, (str, list)):
+            raise TypeError(f"{file_type} must be passed as either string or list")
                 
-        if isinstance(file_type, (list, tuple)):
+        if isinstance(file_type, list):
             for ft in set(file_type):
+                if not isinstance(ft, str):
+                    raise TypeError(f"{ft} must be passed as a string")
                 self._mapp[ft] = func
         else:
             self._mapp[file_type] = func
         
     def add_functions(self, func_ftype_dict):
+        if not isinstance(func_ftype_dict, dict):
+            raise TypeError('func_ftype_dict must by dictonary type')
         for k, v in func_ftype_dict.items():
             self._add(k, v)
     
