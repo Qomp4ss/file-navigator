@@ -71,7 +71,7 @@ class _PathManager:
         list
             List of the loaded data objects, e.g. pandas DataFrames.
         """
-        if not issubclass(loader, ABLoader):
+        if not isinstance(loader, ABLoader):
             raise TypeError("Incorrect Loader type. It must be ABLoader type")
         return [loader.load(os.path.join(*p), **kwargs) for p in self._paths]
     
