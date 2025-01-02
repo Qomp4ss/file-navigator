@@ -69,7 +69,7 @@ class _PathManager:
       
         
 
-class Navgiator:
+class PathFinder:
     
     def __init__(self, init_dirs = None):
         self.directories = {}
