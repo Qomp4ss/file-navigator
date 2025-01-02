@@ -386,6 +386,18 @@ class Test_PathManager(unittest.TestCase):
         pm = _PathManager(mock_paths)
         self.assertCountEqual(pm.load(MockLoader(), **kwargs), expected)
         
+    def test_load_bad_loader(self):
+        
+        class MockLoader:
+            
+            def load(self, path):
+                return f"Im not following ABLoader interface!"
+
+        pm = _PathManager([(r"C:\mock_directory", 'Forex.xlsx')])
+        kwargs = {'key1': 'value1'}
+        with self.assertRaises(TypeError):
+            pm.load(MockLoader(), **kwargs)
+        
 
     
 def suite():
@@ -393,6 +405,7 @@ def suite():
     suite.addTest(Test_PathManager('test_select_paths'))
     suite.addTest(Test_PathManager('test_groupby'))
     suite.addTest(Test_PathManager('test_load'))
+    suite.addTest(Test_PathManager('test_load_bad_loader'))
     return suite
 
 if __name__ == '__main__':
