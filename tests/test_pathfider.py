@@ -1,5 +1,5 @@
 import unittest
-from fpath_finder import PathFinder
+from file_navigator import PathFinder
 from pathlib import Path
 from unittest.mock import patch
 

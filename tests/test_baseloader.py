@@ -1,5 +1,5 @@
 import unittest
-from fpath_finder.abc_loader import BaseLoader
+from file_navigator.abc_loader import BaseLoader
 
 def load_1(path, kwarg1 = None):
     return f"{path} called with kwargs:{kwarg1}"

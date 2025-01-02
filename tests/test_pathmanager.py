@@ -1,5 +1,5 @@
 import unittest
-from fpath_finder.pathfinder import _PathManager
+from file_navigator.pathfinder import _PathManager
 from pathlib import Path
 from unittest.mock import patch
 from fpath_finder.abc_loader import ABLoader
