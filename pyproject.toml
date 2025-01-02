@@ -3,7 +3,7 @@ requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "f-path-finder"          # The package name
+name = "file-navigator"          # The package name
 description = "Flexible directory scanner, file path manager, and customizable file loader—all in one"
 readme = "README.md"         # The README file (Markdown or reStructuredText)
 dynamic = ["version"]
