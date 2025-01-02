@@ -1,8 +1,6 @@
 import unittest
 from file_navigator.pathfinder import _PathManager
-from pathlib import Path
-from unittest.mock import patch
-from fpath_finder.abc_loader import ABLoader
+from file_navigator.abc_loader import ABLoader
 
 class Test_PathManager(unittest.TestCase):
        

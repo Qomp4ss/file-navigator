@@ -84,7 +84,7 @@ class TestPathFinder(unittest.TestCase):
         pf.add_dirs(in_put)
         self.assertRaises(KeyError, pf.del_dirs, str(Path(__file__).cwd().parent))
 
-    @patch('fpath_finder.pathfinder.os.path.isdir')        
+    @patch('file_navigator.pathfinder.os.path.isdir')        
     def test_find_arg_validation(self, mock_isdir):
         directory = r"C:\mock_directory"
         mock_isdir.side_effect = lambda path: True if path == directory else False
@@ -111,9 +111,9 @@ class TestPathFinder(unittest.TestCase):
                 with self.assertRaises(expected[arg]):
                     pf.find(*arg)
 
-    @patch('fpath_finder.pathfinder.os.walk')
-    @patch('fpath_finder.pathfinder.os.path.isdir')
-    @patch('fpath_finder.pathfinder.os.path.isfile')
+    @patch('file_navigator.pathfinder.os.walk')
+    @patch('file_navigator.pathfinder.os.path.isdir')
+    @patch('file_navigator.pathfinder.os.path.isfile')
     def test_find_nested_dir(self, mock_isfile, mock_isdir, mock_walk):
         directory = r"C:\mock_directory"
         mock_isdir.side_effect = lambda path: True if path == directory else False
@@ -168,9 +168,9 @@ class TestPathFinder(unittest.TestCase):
                 self.assertCountEqual(result, expected[arg])
        
 
-    @patch('fpath_finder.pathfinder.os.scandir')
-    @patch('fpath_finder.pathfinder.os.path.isdir')
-    @patch('fpath_finder.pathfinder.os.path.isfile')
+    @patch('file_navigator.pathfinder.os.scandir')
+    @patch('file_navigator.pathfinder.os.path.isdir')
+    @patch('file_navigator.pathfinder.os.path.isfile')
     def test_find_flat_dir(self, mock_isfile, mock_isdir, mock_scandir):
         directory = r"C:\mock_directory"
         mock_isdir.side_effect = lambda path: True if path == directory else False
