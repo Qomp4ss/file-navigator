@@ -4,12 +4,44 @@ from functools import lru_cache, partial
 from pathlib import Path
 from . import matching
 import inspect
+from .abc_loader import ABLoader
 
 
 
 class _PathManager:
+    """Private class for file path operations.
     
-    def __init__(self, paths, reader = None):
+    Parameters:
+        paths (List[Tuple[str, str]]): Two element Tuple or List of Tuples, 
+            containg strings representing a file path and file name combined 
+            with file extention.
+        
+    Attributes:
+        paths (List[Tuple[str, str]]): Returns the list of the paths parameter,
+            that the class was instatiated with in reversed order (file name is 
+            the 1st item in the tuple istead of file path).
+        matching_eng (matching): Class with the matching functions.
+        
+    Methods:
+        select_paths (patter: str, match_type: str): Allows to filter the file paths 
+            based on the given pattern and matching function from matching_eng.
+            Default match type is equality check: 'eq'. 
+            The method returns new instance of _PathManager.
+        groupby (by: str, pattern: str, match type: str): Allows to group 
+            the paths besed on following path elements: extention, name and path.
+            Each of the grouping keys support also mattching by pattern 
+            and mattching functions function from matching_eng.
+            The method returns dictionary with group key and new instance of _PathManager
+            istantiated with group values.
+        load (Loader, **kwargs): Loads data from the file specided by single path.
+        path (pattern:str, match_type:str, it): Key funtion for grouping paths
+            by file path.
+        name (pattern:str, match_type:str, it): Key funtion for grouping paths
+            by file name.
+        ext (pattern:str, match_type:str, it): Key funtion for grouping paths
+            by file type.
+    """   
+    def __init__(self, paths):
         if isinstance(paths, tuple):
             self._paths = [paths]
         else:
@@ -19,10 +51,49 @@ class _PathManager:
     def __len__(self):
         return len(self._paths)
                   
-    def load(self, reader, **kwargs):
-        return [reader.load(os.path.join(*p), **kwargs) for p in self._paths]
+    def load(self, loader, **kwargs):
+        """"
+        Loads data from the file specided by single path.
+        
+        This method uses dependecy injection to leverage an object following 
+        abc_Loader.ABLoader interface, to load data from all of the paths,
+        that the _PathManager was instantiated with.
+        
+        Parameters
+        ----------
+        loader: type[abc_Loader.ABLoader]
+            Object that have load method defined.
+        kwargs: dict
+            Key Value parameters that are supported by the loader object.
+            
+        Returns
+        -------
+        list
+            List of the loaded data objects, e.g. pandas DataFrames.
+        """
+        if not issubclass(loader, ABLoader):
+            raise TypeError("Incorrect Loader type. It must be ABLoader type")
+        return [loader.load(os.path.join(*p), **kwargs) for p in self._paths]
     
     def select_paths(self, pattern, match_type = 'eq'):
+        """"
+        Filters file paths based on a specifed pattern and creates new object.
+        
+        This method allows to filter file paths based on a given pattern
+        that is supported by the types defined in matching module.
+        
+        Parameters
+        ----------
+        pattern: str
+            String that can be matched with a file path.
+        match_type: str
+            String representing a matching function from the matching module.
+            
+        Returns
+        -------
+        _PathManager
+            New instance of _PathManager with filtered paths.
+        """
         return self.__class__(
             list(
                 filter(
@@ -34,9 +105,36 @@ class _PathManager:
     
     @property
     def paths(self):
+        """
+        Returns list with file paths and file names in reversed order.
+        """
         return list(tuple(reversed(p)) for p in self._paths)
 
     def groupby(self, by, pattern = None, match_type = 'eq'):
+        """
+        Groups paths by specifed part and pattern.
+        
+        This function allows to group paths by a specifed part defined by 
+        Key function (file path, file name and file type) as well as specifed 
+        pattern that is supported by the types defined in matching module. 
+        Function returns a dictionary with keys defined by Key function 
+        and values which are new instances of _PathManager.
+        
+        Parameters
+        ----------
+        by: str
+            String representing a Key function (path, name, ext).
+        pattern: str
+            String that can be matched with a file path part.
+        match_type: str
+            String representing a matching function from the matching module.
+            
+        Returns
+        -------
+        dict
+            Dictionary with keys defined by a Key function and values which are 
+            new instances of _PathManager.
+        """
         return {
             k:self.__class__(list(g)) for k, g in groupby(
                 sorted(
@@ -47,12 +145,46 @@ class _PathManager:
     
     #Sorting functions   
     def path(self, pattern, match_type, it):
+        """
+        Key function representing file path.
+        
+        This function returns a path file part of a single path item.
+        
+        Parameters
+        ----------
+        pattern: str
+            String that can be matched with a file path.
+        match_type: str
+            String representing a matching function from the matching module.
+            
+        Returns
+        -------
+        str
+            A path file.
+        """
         if pattern is None:
             return it[0]
         else:
             return getattr(self.matching_eng, match_type)(it[0], pattern)
 
     def name(self, pattern, match_type, it):
+        """
+        Key function representing file name.
+        
+        This function returns a file name part of a single path item.
+        
+        Parameters
+        ----------
+        pattern: str
+            String that can be matched with a file name (without file type).
+        match_type: str
+            String representing a matching function from the matching module.
+            
+        Returns
+        -------
+        str
+            A file name (without file type).
+        """
         if pattern is None:
             return Path(it[1]).stem
         else:
@@ -60,6 +192,23 @@ class _PathManager:
 
 
     def ext(self, pattern, match_type, it):
+        """
+        Key function representing file type.
+        
+        This function returns a file type part of a single path item.
+        
+        Parameters
+        ----------
+        pattern: str
+            String that can be matched with a file type.
+        match_type: str
+            String representing a matching function from the matching module.
+            
+        Returns
+        -------
+        str
+            A file type.
+        """
         if pattern is None:
             return Path(it[1]).suffix
         else:
@@ -70,7 +219,9 @@ class _PathManager:
         
 
 class PathFinder:
-    
+    """Main class for navigating trough directories and fiding matching paths,
+    supporting globing and regex patterns as well as equality and inclusion checks
+    for file name and type separately"""    
     def __init__(self, init_dirs = None):
         self.directories = {}
         self.matching_eng = matching
