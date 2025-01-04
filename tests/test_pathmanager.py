@@ -4,6 +4,11 @@ from file_navigator.abc_loader import ABLoader
 
 class Test_PathManager(unittest.TestCase):
        
+    def test_empty_init(self):
+        with self.assertRaises(ValueError):
+           _PathManager([])
+
+    
     def test_select_paths(self):
         mock_dir = r"C:\mock_directory"        
         mock_files = ['Forex.xlsx','EURGBP_H4.csv','EURGBP_M5.csv',
@@ -50,6 +55,9 @@ class Test_PathManager(unittest.TestCase):
             with self.subTest(arg = arg):
                 result = [p[0] for p in _PathManager(mock_paths).select_paths(*arg).paths]
                 self.assertCountEqual(result, expected[arg])
+                with self.assertRaises(ValueError):
+                    _PathManager(mock_paths).select_paths(('XXXXXXX',  'eq'))
+        
 
     
     def test_groupby(self):
@@ -359,7 +367,8 @@ class Test_PathManager(unittest.TestCase):
                 result = {k: v.paths for k, v in _PathManager(mock_paths).groupby(*arg).items()}
                 self.assertCountEqual(result, expected[arg])
                 self.assertCountEqual(result.values(), expected[arg].values())
-                
+        
+               
     def test_load(self):
         
         class MockLoader(ABLoader):
@@ -391,7 +400,7 @@ class Test_PathManager(unittest.TestCase):
         class MockLoader:
             
             def load(self, path):
-                return f"Im not following ABLoader interface!"
+                return "Im not following ABLoader interface!"
 
         pm = _PathManager([(r"C:\mock_directory", 'Forex.xlsx')])
         kwargs = {'key1': 'value1'}
@@ -402,6 +411,7 @@ class Test_PathManager(unittest.TestCase):
     
 def suite():
     suite = unittest.TestSuite()
+    suite.addTest(Test_PathManager('test_empty_init'))
     suite.addTest(Test_PathManager('test_select_paths'))
     suite.addTest(Test_PathManager('test_groupby'))
     suite.addTest(Test_PathManager('test_load'))
