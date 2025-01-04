@@ -246,7 +246,7 @@ class PathFinder:
             directory path with traverse_subdirs flag.
         add_dirs (directories: Dict[str:bool]): Method for appending
             a collection of directory path and traverse_subdirs flag pairs.
-        del_dirs (directories: List[str]): Method for deletig a collection 
+        del_dirs (directories: str | List[str]): Method for deletig a collection 
             of directory path and traverse_subdirs flag pairs.)
         find (name: str, ext:str, name_type:str[default='eq'], ext_type:str[default='eq']):
             Method for iterating trough all of the directories collection and matching 
@@ -337,16 +337,16 @@ class PathFinder:
         
         Parameters
         ----------
-        directories: List[str]
-            List containg Path-like strings pointing to an existing 
+        directories: str | List[str]
+            List containg path-like strings or single string pointing to an existing 
             direcotories entry.
             
         Returns
         -------
         None
         """
-        if not isinstance(directories, list):
-            raise TypeError('"directories" argument must be a list')
+        if not hasattr(directories, '__iter__'):
+            raise TypeError('"directories" argument must be iterable')
         for d in directories:
             self.del_dir(d)
             
