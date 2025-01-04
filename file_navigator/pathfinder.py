@@ -13,17 +13,16 @@ class _PathManager:
     
     Parameters:
         paths (List[Tuple[str, str]]): Two element Tuple or List of Tuples, 
-            containg strings representing a file path and file name combined 
-            with file extention.
+            containg path-like strings and file name combined with file extention.
         
     Attributes:
-        paths (List[Tuple[str, str]]): Returns the list of the paths parameter,
+        paths (List[Tuple[str, str]]): Returns the list of the paths attribute,
             that the class was instatiated with in reversed order (file name is 
             the 1st item in the tuple istead of file path).
         matching_eng (Type(matching)): Class with the matching functions.
         
     Methods:
-        select_paths (patter: str, match_type: str): Allows to filter the file paths 
+        select_paths (pattern: str, match_type: str): Allows to filter the file paths 
             based on the given pattern and matching function from matching_eng.
             Default match type is equality check: 'eq'. 
             The method returns new instance of _PathManager.
@@ -56,7 +55,7 @@ class _PathManager:
                   
     def load(self, loader, **kwargs):
         """"
-        Loads data from the file specided by single path.
+        Loads data from the file specided by single path-like string.
         
         This method uses dependecy injection to leverage an object following 
         abc_Loader.ABLoader interface, to load data from all of the paths,
@@ -80,7 +79,7 @@ class _PathManager:
     
     def select_paths(self, pattern, match_type = 'eq'):
         """"
-        Filters file paths based on a specifed pattern and creates new object.
+        Filters path-like strings based on a specifed pattern and creates new object.
         
         This method allows to filter file paths based on a given pattern
         that is supported by the types defined in matching module.
