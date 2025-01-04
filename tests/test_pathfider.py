@@ -217,6 +217,12 @@ class TestPathFinder(unittest.TestCase):
                 result = [p[0] for p in pf.find(*arg).paths]
                 self.assertCountEqual(result, expected[arg])
     
+    def test_empty_find(self):
+        pf = PathFinder()
+        with self.assertRaises(ValueError):
+            pf.find('Forex', '.xlsx', 'eq', 'eq')
+        
+    
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(TestPathFinder('test_empty_init'))
@@ -233,6 +239,7 @@ def suite():
     suite.addTest(TestPathFinder('test_find_arg_validation'))
     suite.addTest(TestPathFinder('test_find_nested_dir'))
     suite.addTest(TestPathFinder('test_find_flat_dir'))
+    suite.addTest(TestPathFinder('test_empty_find'))
     return suite
 
 if __name__ == '__main__':
