@@ -42,6 +42,9 @@ class _PathManager:
             by file type.
     """   
     def __init__(self, paths):
+        if len(paths) == 0:
+            raise ValueError('"paths" parameter is empty.')
+        
         if isinstance(paths, tuple):
             self._paths = [paths]
         else:
@@ -345,8 +348,8 @@ class PathFinder:
         -------
         None
         """
-        if not hasattr(directories, '__iter__'):
-            raise TypeError('"directories" argument must be iterable')
+        if not isinstance(directories, (list, str)):
+            raise TypeError('"directories" argument must be a list os strings or a string')
         for d in directories:
             self.del_dir(d)
             
@@ -488,6 +491,9 @@ class PathFinder:
             
         if not hasattr(matching, ext_type):
             raise ValueError(f'"name_type" argument must be one of {self._get_obj_func(matching)}')
+            
+        if len(self.directories) == 0:
+            raise ValueError('There are no dictionaries to be searched.')
 
 
         return self.pm(
