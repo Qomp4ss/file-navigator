@@ -20,7 +20,7 @@ class _PathManager:
         paths (List[Tuple[str, str]]): Returns the list of the paths parameter,
             that the class was instatiated with in reversed order (file name is 
             the 1st item in the tuple istead of file path).
-        matching_eng (matching): Class with the matching functions.
+        matching_eng (Type(matching)): Class with the matching functions.
         
     Methods:
         select_paths (patter: str, match_type: str): Allows to filter the file paths 
@@ -86,7 +86,7 @@ class _PathManager:
         ----------
         pattern: str
             String that can be matched with a file path.
-        match_type: str
+        match_type: str[default='eq']
             String representing a matching function from the matching module.
             
         Returns
@@ -124,9 +124,9 @@ class _PathManager:
         ----------
         by: str
             String representing a Key function (path, name, ext).
-        pattern: str
+        pattern: str[default=None]
             String that can be matched with a file path part.
-        match_type: str
+        match_type: str[default='eq']
             String representing a matching function from the matching module.
             
         Returns
@@ -219,9 +219,40 @@ class _PathManager:
         
 
 class PathFinder:
-    """Main class for navigating trough directories and fiding matching paths,
-    supporting globing and regex patterns as well as equality and inclusion checks
-    for file name and type separately"""    
+    """
+    Main class for navigating trough directories and fiding files.
+    
+    Class for navigating trough directories and fiding matching file paths,
+    supporting pattern matching as defined in matching module, for file name 
+    and file type respectivley. Can be instantiated empty or with dictonary
+    with directories to be scaned.
+    
+    Attributes:
+        directories (Dict): Empty dictonary to which directory path and flag
+            for flat or deep scan key, value paris will be added.
+        matching_eng (Type(matching)): Class with the matching functions.
+        pm (Type(_PathManager)): Private class for file path operations.
+
+    
+    Parameters:
+        init_dirs (Dict[str:bool], default=None): Dictionary with path-like 
+            string as key and bool value. 
+                
+    Methods:
+        add_dir (directory:str, traverse_subdirs:[bool, default = False]): Method
+            for adding single key, value pair of directory path with bool flag 
+            indicating deep or flat scan.
+        del_dir (directory:str): Method for removing single key, value pair of
+            directory path with traverse_subdirs flag.
+        add_dirs (directories: Dict[str:bool]): Method for appending
+            a collection of directory path and traverse_subdirs flag pairs.
+        del_dirs (directories: List[str]): Method for deletig a collection 
+            of directory path and traverse_subdirs flag pairs.)
+        find (name: str, ext:str, name_type:str[default='eq'], ext_type:str[default='eq']):
+            Method for iterating trough all of the directories collection and matching 
+            files based on defined file name and file type patterns, supported 
+            by the matching_eng.
+    """    
     def __init__(self, init_dirs = None):
         self.directories = {}
         self.matching_eng = matching
@@ -232,30 +263,98 @@ class PathFinder:
             self.add_dirs(init_dirs)
             
     def add_dir(self, directory, traverse_subdirs = False):
+        """
+        Function for adding a directories entry.
+        
+        This function allows to add a signle directory entry, validating whether
+        passed key is a valid directory.
+        
+        Parameters
+        ----------
+        directory: str
+            Path-like string pointing to an existing directory.
+        traverse_subdirs: bool[default=False]
+            FLag indicating wheter all subdirectories of passed directory should 
+            be iterated over.
+            
+        Returns
+        -------
+        None
+        """
         if os.path.isdir(directory):
             self.directories[directory] = traverse_subdirs
         else:
             raise ValueError("Specified directory does not exist")
             
         if not (isinstance(traverse_subdirs, (bool, int)) and int(traverse_subdirs) <= 1):
-            raise ValueError("'traverse_subdirs' argument must be bool or int: (0,1)")
+            raise TypeError("'traverse_subdirs' argument must be bool or int: (0,1)")
 
             
     def del_dir(self, directory):
+        """
+        Function for removing a directory entry.
+        
+        This function allows to remove a signle directories entry. If specified
+        direcotry is not part of the directories collection, KeyError is raised.
+        
+        Parameters
+        ----------
+        directory: str
+            Path-like string pointing to a directory in directories collection.
+            
+        Returns
+        -------
+        None
+        """
         del self.directories[directory]
         
     def add_dirs(self, directories):
+        """
+        Function for adding multiple directories entries.
+        
+        This function allows to add multiple directory entries passed as a dictionary, 
+        iteratively calling add_dir method.
+        
+        Parameters
+        ----------
+        directories: Dict[str: bool]
+            Dictionary containg Path-like strings pointing to an existing 
+            direcotory with traverse_subdirs flag.
+            
+        Returns
+        -------
+        None
+        """
         for k, v in directories.items():
             self.add_dir(k, v)
     
     def del_dirs(self, directories):
-        if not hasattr(directories, "__iter__"):
-            raise ValueError('"directories" argument must be iterable')
+        """
+        Function for removing multiple directories entries.
+        
+        This function allows to remove multiple directory entries passed in a list, 
+        iteratively calling del_dir method.
+        
+        Parameters
+        ----------
+        directories: List[str]
+            List containg Path-like strings pointing to an existing 
+            direcotories entry.
+            
+        Returns
+        -------
+        None
+        """
+        if not isinstance(directories, list):
+            raise TypeError('"directories" argument must be a list')
         for d in directories:
             self.del_dir(d)
             
     @lru_cache(maxsize=None)
     def _resolve_ext(self, string):
+        """
+        Private function for standarising file type string.
+        """
         if '.' in string:
             return string.replace('.', '')
         else:
@@ -263,6 +362,33 @@ class PathFinder:
 
           
     def _traverse_subdir(self, directory, name, ext, name_type, ext_type):
+        """
+        Private function for nested directory iteration and file matching.
+        
+        This function iterates trough a signle directory including all subdirectories,
+        trying to match all of the files based on the specified name and file type patterns. 
+        
+        Paramteres
+        ----------
+        directory: str
+            Path-like string pointing to an existing directory.
+        name: str
+            File name pattern to be mached.
+        ext: str
+            File type (file extention) pattern to be matched.
+        name_tpye: str
+            String representing function in matching_eng for matching 
+                file name pattern.
+        ext_tpye: str
+            String representing function in matching_eng for matching 
+                file type(extention) pattern.
+        
+        Returns
+        -------
+        Generator[Tuple[root[str], file[str]]]
+            Generator containing 2-elemnt tuple containg root directory 
+            and matching file.
+        """
         return ((root, file) for root, _, files in os.walk(directory) 
                 for file in files 
                 if os.path.isfile(os.path.join(root, file))
@@ -272,6 +398,33 @@ class PathFinder:
 
                 
     def _traverse_dir(self, directory, name, ext, name_type, ext_type):
+        """
+        Private function for flat directory iteration and file matching.
+        
+        This function iterates trough a signle directory trying to match 
+        all of the files based on the specified name and file type patterns. 
+        
+        Paramteres
+        ----------
+        directory: str
+            Path-like string pointing to an existing directory.
+        name: str
+            File name pattern to be mached.
+        ext: str
+            File type (file extention) pattern to be matched.
+        name_tpye: str
+            String representing function in matching_eng for matching 
+                file name pattern.
+        ext_tpye: str
+            String representing function in matching_eng for matching 
+                file type(extention) pattern.
+        
+        Returns
+        -------
+        Generator[Tuple[directory[str], file[str]]]
+            Generator containing 2-elemnt tuple containg the directory 
+            and matching file.
+        """
         return ((directory, file)  for file in os.scandir(directory) 
                 if os.path.isfile(os.path.join(directory, file))
                 and getattr(self.matching_eng, ext_type)(self._resolve_ext(Path(file).suffix), ext)
@@ -279,12 +432,51 @@ class PathFinder:
 
     @lru_cache(maxsize=None)
     def _get_obj_func(self, obj):
+        """
+        Private function to dynamically return joined string of list 
+        containing all available functions in an specifed object.
+        
+        Paramters
+        ---------
+        obj: Any
+        
+        Returns
+        -------
+        str
+            String of all object methods joined by comma.
+        """
         return ', '.join(
             i[0] for i in inspect.getmembers(obj, predicate=inspect.isfunction)
             )
 
     @lru_cache(maxsize=None)
     def find(self, name, ext, name_type = 'eq', ext_type = 'eq'):
+        """
+        Function for finding files in defined directories.
+        
+        This function iterates trough all directories attriubute, returning new
+        instance of _PathManager class insantiated with all unique matching files 
+        and paths pointing to them. Files are be mached by both file name and type
+        patterns that are supported by matching_eng.
+        
+        Paramteres
+        ----------
+        name: str
+            File name pattern to be mached.
+        ext: str
+            File type (file extention) pattern to be matched.
+        name_type: str[default='eq']
+            String representing function in matching_eng for matching 
+                file name pattern.
+        ext_type: str[default='eq']
+            String representing function in matching_eng for matching 
+                file type(extention) pattern.
+        
+        Returns
+        -------
+        Type[_PathManager]
+            New instance of _PathManager class.
+        """
         if not isinstance(name, str):
             raise TypeError('"name" argument must be string type')     
             
