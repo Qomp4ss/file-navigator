@@ -104,7 +104,7 @@ class BaseLoader(ABLoader):
     
     def _inspect(self, function):
         """
-        Private function for returning all of the parameters accepted by a loader function
+        Private function for returning all of the parameters accepted by a loader function.
         
         Parameters
         ----------
@@ -114,7 +114,7 @@ class BaseLoader(ABLoader):
         Retruns
         -------
         odict_keys
-            Collection of the paramaters accepted by the function
+            Collection of the paramaters accepted by the function.
         """
         return inspect.signature(function).parameters.keys()
     
@@ -133,12 +133,12 @@ class BaseLoader(ABLoader):
         path: str
             path-like string pointing to an existing file.
         kwargs: dict
-            Key, value arguments to be distributed to loader functions
+            Key, value arguments to be distributed to loader functions.
         
         Retruns
         -------
         obj
-            object loaded by the delagete function
+            object loaded by the delagete function.
         """
         f = self._mapp[Path(path).suffix]
         return f(path, **{k:v for k, v in kwargs.items() if k in self._inspect(f)})
