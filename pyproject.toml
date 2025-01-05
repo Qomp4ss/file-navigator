@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,13 +14,20 @@ authors = [
 maintainers = [
     { name = "Qomp4ss", email = "imaggine@gmail.com" }
 ]
-keywords = ["example", "package"]  # Keywords for the package
+keywords = ["file", "flexible", "manager", "directory", "scaner", "path"]
 classifiers = [                    # Trove classifiers
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent"
 ]
+requires-python = ">=3.6"
 dependencies = [                   # List of runtime dependencies
     "pandas>=0.22"
 ]
-python = ">=3.6"                   # Minimum Python version
+#python = ">=3.6"                   # Minimum Python version
+
+[tool.setuptools.dynamic]
+version = {attr = "file_navigator.__version__"} 
+
+[project.urls]
+Homepage = "https://github.com/Qomp4ss/file-navigator"
