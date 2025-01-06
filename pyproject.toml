@@ -18,7 +18,7 @@ keywords = ["file", "flexible", "manager", "directory", "scaner", "path"]
 classifiers = [                    # Trove classifiers
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent"
+    "Operating System :: Microsoft :: Windows :: Windows 10"
 ]
 requires-python = ">=3.6"
 dependencies = [                   # List of runtime dependencies
