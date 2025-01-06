@@ -1,5 +1,5 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 def eq(string, pattern):
     """
@@ -10,9 +10,9 @@ def eq(string, pattern):
     string: str
         String with which pattern will be compared.
     pattern: str
-        String pattern to be match.
+        String pattern to be matched.
     
-    Retruns
+    Returns
     -------
     bool
         True/False if string and a pattern are equal.
@@ -30,7 +30,7 @@ def isin(string, pattern):
     pattern: str
         String pattern to be searched.
     
-    Retruns
+    Returns
     -------
     bool
         True/False if pattern is in the string.
@@ -39,16 +39,16 @@ def isin(string, pattern):
           
 def regex(string, pattern):
     """
-    Regex matching function supporting standard strings and file-paths/
+    Regex matching function supporting standard strings and file paths.
     
     Parameters
     ----------
     string: str
-        String in which regex pattern will serached.
+        String in which regex pattern will be searched.
     pattern: str
         String regex pattern to be searched.
     
-    Retruns
+    Returns
     -------
     bool
         True/False if regex pattern was found in the string.
@@ -57,16 +57,16 @@ def regex(string, pattern):
 
 def glob(string, pattern):
     """
-    Glob matching function supporting standard strings and file-paths.
+    Glob matching function supporting standard strings and file paths.
     
     Parameters
     ----------
     string: str
-        String in which glob pattern will serached.
+        String in which glob pattern will be searched.
     pattern: str
         String glob pattern to be searched.
     
-    Retruns
+    Returns
     -------
     bool
         True/False if glob pattern was found in the string.

@@ -20,27 +20,27 @@ class ABLoader(ABC):
         path: path-like object.
         kwargs: dict
         """
-        raise NotImplementedError("This have to be implemented")
+        raise NotImplementedError("This has to be implemented")
 
 class BaseLoader(ABLoader):
     """
     Simple Loader Factory
     
-    Class that implents ABLoader interface allowing to dynamicly create loader objects, 
-    based on a dictionary with loading functions and extension_type(s) paris.
+    Class that implements ABLoader interface allowing to dynamically create loader objects, 
+    based on a dictionary with loading functions and extension_type(s) pairs.
     
     Parameters:
         func_ftype_dict (Dict[callable : str | list][default=None]): Dictionary 
-            with loading functions and extension_type(s) paris.
+            with loading functions and extension_type(s) pairs.
     
     Attributes:
         _mapp (dict): Empty dict to which loading functions and extension_type(s)
-            paris will be added.
+            pairs will be added.
     
     Methods:
         add_functions (func_ftype_dict: Dict[callable : str | list]]): Function
-            to add at least one loading functions and extension_type(s) entry.
-        load (path: str, kwargs: dict): Function for loading data sprecifed by 
+            to add at least one loading function and extension_type(s) entry.
+        load (path: str, kwargs: dict): Function for loading data specified by 
             a file path, distributing matching key-value arguments to all of the 
             available loader functions.            
     """
@@ -61,9 +61,9 @@ class BaseLoader(ABLoader):
         func: Callable
             Loading function.
         file_type: str | list
-            String or list of strings reperesenting file types (extentions).
+            String or list of strings representing file types (extensions).
         
-        Retruns
+        Returns
         -------
         None
         """
@@ -85,20 +85,20 @@ class BaseLoader(ABLoader):
         """
         Function for adding multiple loader function and file type mappings.
         
-        Function that allows to add multiple loader function and file type 
-        mappings, by iteativley calling _add method.
+        Function that allows adding multiple loader function and file type 
+        mappings, by iteratively calling _add method.
         
         Parameters
         ----------
         func_ftype_dict: Dict[callable : str | list]
-            Dictionary with loading functions and extension_type(s) paris.
+            Dictionary with loading functions and extension_type(s) pairs.
         
-        Retruns
+        Returns
         -------
         None
         """
         if not isinstance(func_ftype_dict, dict):
-            raise TypeError('func_ftype_dict must by dictonary type')
+            raise TypeError('func_ftype_dict must be of dictionary type')
         for k, v in func_ftype_dict.items():
             self._add(k, v)
     
@@ -109,12 +109,12 @@ class BaseLoader(ABLoader):
         Parameters
         ----------
         function: Callable
-            Function which paramaters have to be retrived.
+            Function whose parameters have to be retrieved.
         
-        Retruns
+        Returns
         -------
         odict_keys
-            Collection of the paramaters accepted by the function.
+            Collection of the parameters accepted by the function.
         """
         return inspect.signature(function).parameters.keys()
     
@@ -124,21 +124,21 @@ class BaseLoader(ABLoader):
         Implementation of ABLoader interface.
         
         Function implementing ABLoader interface, delegating loading data 
-        operations to al loader function based on the pre-defined file type,
-        from a file specifed by a path-like string, istributing matching key-value 
+        operations to a loader function based on the pre-defined file type,
+        from a file specified by a path-like string, distributing matching key-value 
         arguments to all of the available loader functions.
         
         Parameters
         ----------
         path: str
-            path-like string pointing to an existing file.
+            Path-like string pointing to an existing file.
         kwargs: dict
             Key, value arguments to be distributed to loader functions.
         
-        Retruns
+        Returns
         -------
         obj
-            object loaded by the delagete function.
+            Object loaded by the delegate function.
         """
         f = self._mapp[Path(path).suffix]
         return f(path, **{k:v for k, v in kwargs.items() if k in self._inspect(f)})
