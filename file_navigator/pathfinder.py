@@ -284,12 +284,25 @@ class PathFinder:
         None        
         """
         if os.path.isdir(directory):
+            if any(self._overlap(directory, traverse_subdirs)):
+               raise ValueError(f"{directory} can't be added due to conflicting "\
+                                "parent - child relationship with already added "\
+                                f"directories: {', '.join(self._overlap(directory, traverse_subdirs))}")
             self.directories[directory] = traverse_subdirs
         else:
             raise ValueError("Specified directory does not exist")
             
         if not (isinstance(traverse_subdirs, (bool, int)) and int(traverse_subdirs) <= 1):
             raise TypeError("'traverse_subdirs' argument must be bool or int: (0,1)")
+    
+    @lru_cache(maxsize=None)        
+    def _overlap(self, directory, traverse_subdirs):
+        return [d for d, t_s in self.directories.items() if (
+            (
+                (d in directory and t_s ) or (directory in d and traverse_subdirs)
+                )
+            and len(d) != len(directory)
+            )]
 
             
     def del_dir(self, directory):
