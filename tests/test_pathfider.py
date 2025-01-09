@@ -2,6 +2,7 @@ import unittest
 from file_navigator import PathFinder
 from pathlib import Path
 from unittest.mock import patch
+from itertools import chain
 
 class TestPathFinder(unittest.TestCase):
     
@@ -58,31 +59,67 @@ class TestPathFinder(unittest.TestCase):
         
         self.assertIsInstance(PathFinder(arg), PathFinder)
         
-     
-    def test_add_dirs(self):
-        in_put = {str(Path(__file__).cwd().parent): True,
-                  str(Path(__file__).cwd()): False}
+    @patch('file_navigator.pathfinder.os.path.isdir')  
+    def test_add_dirs(self, mock_isdir):
+        directories =  {"/folder1": True,
+                        "/folder2/subfolderA": False,
+                        "/folder3/subfolderB/subsubfolderC": True}
+        
+        mock_isdir.side_effect = lambda path: True if path in directories else False
         pf = PathFinder()
-        pf.add_dirs(in_put)
-        self.assertEqual(in_put, pf.directories)
+        pf.add_dirs(directories)
+        self.assertEqual(directories, pf.directories)
+    
+    @patch('file_navigator.pathfinder.os.path.isdir')     
+    def test_add_dirs_bad_arg(self, mock_isdir):
         
-    def test_del_dirs_iterable_arg(self):
-        in_put = {str(Path(__file__).cwd().parent): True,
-                  str(Path(__file__).cwd()): False}
-        pf = PathFinder()
-        pf.add_dirs(in_put)
-        pf.del_dirs([str(Path(__file__).cwd().parent)])
+        directories = ['/root/subfolder1', '/root/subfolder2',
+                       '/root/subfolder3', '/root']
         
-        del in_put[str(Path(__file__).cwd().parent)]
+        arg1 = ({"/root/subfolder1": False,
+                "/root/subfolder2": True,
+                "/root/subfolder3": False},
+                {"/root": True},)
         
-        self.assertEqual(in_put, pf.directories)
+        arg2= ({"/root": True},
+                {"/root/subfolder3": False})
 
-    def test_del_dirs_bad_arg(self):
-        in_put = {str(Path(__file__).cwd().parent): True,
-                  str(Path(__file__).cwd()): False}
+        
+
+        args = (arg1, arg2)
+        mock_isdir.side_effect = lambda path: True if path in directories else False
+        
+        for arg in args:
+            with self.subTest(arg = arg):
+                pf = pf = PathFinder(arg[0])
+                with self.assertRaises(ValueError):
+                    pf.add_dirs(arg[1])
+        
+
+    @patch('file_navigator.pathfinder.os.path.isdir')     
+    def test_del_dirs_iterable_arg(self, mock_isdir):
+        directories =  {"/folder1": True,
+                        "/folder2/subfolderA": False,
+                        "/folder3/subfolderB/subsubfolderC": True}
+        
+        expected = {"/folder2/subfolderA": False,
+                    "/folder3/subfolderB/subsubfolderC": True}
+        
         pf = PathFinder()
-        pf.add_dirs(in_put)
-        self.assertRaises(KeyError, pf.del_dirs, str(Path(__file__).cwd().parent))
+        pf.add_dirs(directories)
+        pf.del_dirs(["/folder1"])
+        
+        
+        self.assertEqual(expected, pf.directories)
+
+    @patch('file_navigator.pathfinder.os.path.isdir')     
+    def test_del_dirs_bad_arg(self, mock_isdir):
+        directories =  {"/folder1": True,
+                        "/folder2/subfolderA": False,
+                        "/folder3/subfolderB/subsubfolderC": True}        
+        pf = PathFinder()
+        pf.add_dirs(directories)
+        self.assertRaises(KeyError, pf.del_dirs, '/folder4')
 
     @patch('file_navigator.pathfinder.os.path.isdir')        
     def test_find_arg_validation(self, mock_isdir):
