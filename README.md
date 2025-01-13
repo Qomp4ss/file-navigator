@@ -93,6 +93,9 @@ Finding all files from Calculations directory and only Portfolio.xlsx file from 
 ```python
 >>> portfolio = path_finder.find('^(?:(?!Forecast).)+$', '.xlsx|.csv', 'regex', 'regex')
 >>> portfolio.paths
+[('cov_matrix.csv', 'D:\\CURRENCIES\\APAC\\Calculations'),
+ ('transformations.csv', 'D:\\CURRENCIES\\APAC\\Calculations'),
+ ('Portfolio.xlsx', 'D:\\CURRENCIES')]
 ```
 
 
@@ -102,7 +105,13 @@ Finding all txt files and grouping them by the folder they are in
 >>> path_finder = PathFinder({r'D:\CURRENCIES':True})
 >>> pairs = path_finder.find('*', 'txt', 'glob').groupby('path')
 >>> pairs['D:\\CURRENCIES\\APAC'].paths
+[('xaujpy.txt', 'D:\\CURRENCIES\\APAC'),
+ ('xagjpy.txt', 'D:\\CURRENCIES\\APAC')]
 >>> pairs[ 'D:\\CURRENCIES\\EMEA'].paths
+[('eurgbp.txt', 'D:\\CURRENCIES\\EMEA'),
+ ('chfgbp.txt', 'D:\\CURRENCIES\\EMEA'),
+ ('chfeur.txt', 'D:\\CURRENCIES\\EMEA')]
+
 ```
 
 
@@ -114,6 +123,9 @@ Loading all txt and csv files, grouping them by extension and filtering txt file
 >>> csv_files.paths
 >>> txt_EMEA_files = text_files['.txt'].select_paths('EMEA', 'isin')
 >>> txt_EMEA_files.paths
+[('eurgbp.txt', 'D:\\CURRENCIES\\EMEA'),
+ ('chfgbp.txt', 'D:\\CURRENCIES\\EMEA'),
+ ('chfeur.txt', 'D:\\CURRENCIES\\EMEA')]
 ```
 ---
 
