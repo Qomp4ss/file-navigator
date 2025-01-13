@@ -1,5 +1,8 @@
-from .abc_loader import BaseLoader
+"""
+Pandas Loader - Impementation of Base Loader class
+"""
 import pandas as pd
+from .abc_loader import BaseLoader
 
 PDLoader = BaseLoader({pd.read_csv: ['.csv', '.txt'],
                        pd.read_excel: ['.xlsx', '.xls'],

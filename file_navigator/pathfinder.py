@@ -1,9 +1,12 @@
+"""
+Main module with PathFinder object
+"""
 import os
 from itertools import chain, filterfalse, groupby
 from functools import lru_cache, partial
 from pathlib import Path
-from . import matching
 import inspect
+from . import matching
 from .abc_loader import ABLoader
 
 
@@ -40,20 +43,20 @@ class _PathManager:
             by file name.
         ext (pattern: str, match_type: str, it): Key function for grouping paths
             by file type.
-    """    
+    """
     def __init__(self, paths):
         if len(paths) == 0:
             raise ValueError('"paths" parameter is empty.')
-        
+
         if isinstance(paths, tuple):
             self._paths = [paths]
         else:
             self._paths = paths
         self.matching_eng = matching
-           
+
     def __len__(self):
         return len(self._paths)
-                  
+
     def load(self, loader, **kwargs):
         """"
         Loads data from the file specified by a single path-like string.
@@ -77,7 +80,7 @@ class _PathManager:
         if not isinstance(loader, ABLoader):
             raise TypeError("Incorrect Loader type. It must be ABLoader type")
         return [loader.load(os.path.join(*p), **kwargs) for p in self._paths]
-    
+
     def select_paths(self, pattern, match_type = 'eq'):
         """"
         Filters path-like strings based on a specified pattern and creates a new object.
@@ -100,12 +103,12 @@ class _PathManager:
         return self.__class__(
             list(
                 filter(
-                    lambda p: getattr(self.matching_eng, match_type)(p[0], pattern), 
+                    lambda p: getattr(self.matching_eng, match_type)(p[0], pattern),
                     self._paths
                     )
                 )
             )
-    
+
     @property
     def paths(self):
         """
@@ -145,9 +148,9 @@ class _PathManager:
                     ),   partial(getattr(self, by), pattern, match_type)
                 )
             }
-    
-    #Sorting functions   
-    def path(self, pattern, match_type, it):
+
+    #Sorting functions
+    def path(self, pattern, match_type, iterable):
         """
         Key function representing file path.
 
@@ -166,11 +169,10 @@ class _PathManager:
             A file path.
         """
         if pattern is None:
-            return it[0]
-        else:
-            return getattr(self.matching_eng, match_type)(it[0], pattern)
+            return iterable[0]
+        return getattr(self.matching_eng, match_type)(iterable[0], pattern)
 
-    def name(self, pattern, match_type, it):
+    def name(self, pattern, match_type, iterable):
         """
         Key function representing file name.
 
@@ -189,12 +191,11 @@ class _PathManager:
             A file name (without file type).
         """
         if pattern is None:
-            return Path(it[1]).stem
-        else:
-            return getattr(self.matching_eng, match_type)(Path(it[1]).stem, pattern)
+            return Path(iterable[1]).stem
+        return getattr(self.matching_eng, match_type)(Path(iterable[1]).stem, pattern)
 
 
-    def ext(self, pattern, match_type, it):
+    def ext(self, pattern, match_type, iterable):
         """
         Key function representing file type.
 
@@ -213,13 +214,12 @@ class _PathManager:
             A file type.
         """
         if pattern is None:
-            return Path(it[1]).suffix
-        else:
-            return getattr(self.matching_eng, match_type)(Path(it[1]).suffix, pattern)
-        
+            return Path(iterable[1]).suffix
+        return getattr(self.matching_eng, match_type)(Path(iterable[1]).suffix, pattern)
 
-      
-        
+
+
+
 
 class PathFinder:
     """
@@ -254,16 +254,16 @@ class PathFinder:
             Method for iterating through all of the directories collection and matching 
             files based on defined file name and file type patterns, supported 
             by the matching_eng.
-    """    
+    """
     def __init__(self, init_dirs = None):
         self.directories = {}
         self.matching_eng = matching
-        self.pm = _PathManager
+        self.path_manager = _PathManager
 
-        
+
         if init_dirs is not None:
             self.add_dirs(init_dirs)
-            
+
     def add_dir(self, directory, traverse_subdirs = False):
         """
         Function for adding a directory entry.
@@ -285,17 +285,17 @@ class PathFinder:
         """
         if os.path.isdir(directory):
             if any(self._overlap(directory, traverse_subdirs)):
-               raise ValueError(f"{directory} can't be added due to conflicting "\
+                raise ValueError(f"{directory} can't be added due to conflicting "\
                                 "parent - child relationship with already added "\
                                 f"directories: {', '.join(self._overlap(directory, traverse_subdirs))}")
             self.directories[directory] = traverse_subdirs
         else:
             raise ValueError("Specified directory does not exist")
-            
+
         if not (isinstance(traverse_subdirs, (bool, int)) and int(traverse_subdirs) <= 1):
             raise TypeError("'traverse_subdirs' argument must be bool or int: (0,1)")
-    
-    @lru_cache(maxsize=None)        
+
+    @lru_cache(maxsize=128)
     def _overlap(self, directory, traverse_subdirs):
         return [d for d, t_s in self.directories.items() if (
             (
@@ -304,7 +304,7 @@ class PathFinder:
             and len(d) != len(directory)
             )]
 
-            
+
     def del_dir(self, directory):
         """
         Function for removing a directory entry.
@@ -322,7 +322,7 @@ class PathFinder:
         None
         """
         del self.directories[directory]
-        
+
     def add_dirs(self, directories):
         """
         Function for adding multiple directory entries.
@@ -342,7 +342,7 @@ class PathFinder:
         """
         for k, v in directories.items():
             self.add_dir(k, v)
-    
+
     def del_dirs(self, directories):
         """
         Function for removing multiple directory entries.
@@ -362,10 +362,10 @@ class PathFinder:
         """
         if not isinstance(directories, (list, str)):
             raise TypeError('"directories" argument must be a list os strings or a string')
-        for d in directories:
-            self.del_dir(d)
-            
-    @lru_cache(maxsize=None)
+        for directory in directories:
+            self.del_dir(directory)
+
+    @lru_cache(maxsize=128)
     def _resolve_ext(self, string):
         """
         Private function for standardizing file type strings.
@@ -379,13 +379,12 @@ class PathFinder:
         -------
         str
             Standardized file extension without the dot prefix.
-        """        
+        """
         if '.' in string:
             return string.replace('.', '')
-        else:
-            return string
+        return string
 
-          
+
     def _traverse_subdir(self, directory, name, ext, name_type, ext_type):
         """
         Private function for nested directory iteration and file matching.
@@ -414,14 +413,14 @@ class PathFinder:
             Generator containing a 2-element tuple with the root directory 
             and the matching file.
         """
-        return ((root, file) for root, _, files in os.walk(directory) 
-                for file in files 
+        return ((root, file) for root, _, files in os.walk(directory)
+                for file in files
                 if os.path.isfile(os.path.join(root, file))
                 and getattr(self.matching_eng, ext_type)(self._resolve_ext(Path(file).suffix), ext)
                 and getattr(self.matching_eng, name_type)(Path(file).stem, name))
 
 
-                
+
     def _traverse_dir(self, directory, name, ext, name_type, ext_type):
         """
         Private function for flat directory iteration and file matching.
@@ -450,12 +449,12 @@ class PathFinder:
             Generator containing a 2-element tuple with the directory 
             and the matching file.
         """
-        return ((directory, file)  for file in os.scandir(directory) 
+        return ((directory, file)  for file in os.scandir(directory)
                 if os.path.isfile(os.path.join(directory, file))
                 and getattr(self.matching_eng, ext_type)(self._resolve_ext(Path(file).suffix), ext)
                 and getattr(self.matching_eng, name_type)(Path(file).stem, name))
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def _get_obj_func(self, obj):
         """
         Private function to dynamically return a joined string of a list 
@@ -475,7 +474,7 @@ class PathFinder:
             i[0] for i in inspect.getmembers(obj, predicate=inspect.isfunction)
             )
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def find(self, name, ext, name_type = 'eq', ext_type = 'eq'):
         """
         Function for finding files in defined directories.
@@ -504,37 +503,35 @@ class PathFinder:
             New instance of the _PathManager class.
         """
         if not isinstance(name, str):
-            raise TypeError('"name" argument must be string type')     
-            
+            raise TypeError('"name" argument must be string type')
+
         if not isinstance(ext, str):
-            raise TypeError('"ext" argument must be string type')     
-            
+            raise TypeError('"ext" argument must be string type')
+
         if not hasattr(matching, name_type):
             raise ValueError(f'"name_type" argument must be one of {self._get_obj_func(matching)}')
-            
+
         if not hasattr(matching, ext_type):
             raise ValueError(f'"name_type" argument must be one of {self._get_obj_func(matching)}')
-            
+
         if len(self.directories) == 0:
             raise ValueError('There are no dictionaries to be searched.')
 
 
-        return self.pm(
+        return self.path_manager(
                 set(
                     filterfalse(
-                        lambda path: path is False, 
+                        lambda path: path is False,
                         chain.from_iterable(
-                            [self._traverse_subdir(directory, 
-                                                   name, self._resolve_ext(ext),  
-                                                   name_type, ext_type) 
-                             if traverse_subdirs 
-                             else self._traverse_dir(directory, 
-                                                     name, self._resolve_ext(ext),  
+                            [self._traverse_subdir(directory,
+                                                   name, self._resolve_ext(ext),
+                                                   name_type, ext_type)
+                             if traverse_subdirs
+                             else self._traverse_dir(directory,
+                                                     name, self._resolve_ext(ext),
                                                      name_type, ext_type)
                              for directory, traverse_subdirs in self.directories.items()]
                             )
                         )
                     )
                 )
-            
-    

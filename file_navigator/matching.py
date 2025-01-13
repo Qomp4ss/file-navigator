@@ -1,3 +1,6 @@
+"""
+Module with matching functions
+"""
 import re
 from pathlib import Path
 
@@ -18,7 +21,7 @@ def eq(string, pattern):
         True/False if string and a pattern are equal.
     """
     return string == pattern
-          
+
 def isin(string, pattern):
     """
     Inclusion matching function.
@@ -36,7 +39,7 @@ def isin(string, pattern):
         True/False if pattern is in the string.
     """
     return pattern in string
-          
+
 def regex(string, pattern):
     """
     Regex matching function supporting standard strings and file paths.
@@ -53,7 +56,7 @@ def regex(string, pattern):
     bool
         True/False if regex pattern was found in the string.
     """
-    return True if re.search(pattern, string) else False
+    return bool(re.search(pattern, string))
 
 def glob(string, pattern):
     """

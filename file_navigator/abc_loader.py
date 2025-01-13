@@ -1,3 +1,6 @@
+"""
+Abstract & Concrete Loader classes
+"""
 from abc import ABC, abstractmethod
 import inspect
 from pathlib import Path
@@ -48,7 +51,7 @@ class BaseLoader(ABLoader):
         self._mapp = {}
         if func_ftype_dict is not None:
             self.add_functions(func_ftype_dict)
-        
+
     def _add(self, func, file_type):
         """
         Private function for adding single mapping of loader function and file type.
@@ -69,18 +72,18 @@ class BaseLoader(ABLoader):
         """
         if not callable(func):
             raise TypeError(f"{func} is not callable")
-            
+
         if not isinstance(file_type, (str, list)):
             raise TypeError(f"{file_type} must be passed as either string or list")
-                
+
         if isinstance(file_type, list):
-            for ft in set(file_type):
-                if not isinstance(ft, str):
-                    raise TypeError(f"{ft} must be passed as a string")
-                self._mapp[ft] = func
+            for f_t in set(file_type):
+                if not isinstance(f_t, str):
+                    raise TypeError(f"{f_t} must be passed as a string")
+                self._mapp[f_t] = func
         else:
             self._mapp[file_type] = func
-        
+
     def add_functions(self, func_ftype_dict):
         """
         Function for adding multiple loader function and file type mappings.
@@ -101,7 +104,7 @@ class BaseLoader(ABLoader):
             raise TypeError('func_ftype_dict must be of dictionary type')
         for k, v in func_ftype_dict.items():
             self._add(k, v)
-    
+
     def _inspect(self, function):
         """
         Private function for returning all of the parameters accepted by a loader function.
@@ -117,8 +120,8 @@ class BaseLoader(ABLoader):
             Collection of the parameters accepted by the function.
         """
         return inspect.signature(function).parameters.keys()
-    
-    @lru_cache(maxsize=None)            
+
+    @lru_cache(maxsize=128)
     def load(self, path, **kwargs):
         """
         Implementation of ABLoader interface.
@@ -140,6 +143,6 @@ class BaseLoader(ABLoader):
         obj
             Object loaded by the delegate function.
         """
-        f = self._mapp[Path(path).suffix]
-        return f(path, **{k:v for k, v in kwargs.items() if k in self._inspect(f)})
+        func = self._mapp[Path(path).suffix]
+        return func(path, **{k:v for k, v in kwargs.items() if k in self._inspect(func)})
     
