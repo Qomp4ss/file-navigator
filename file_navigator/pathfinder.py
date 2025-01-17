@@ -9,8 +9,6 @@ import inspect
 from . import matching
 from .abc_loader import ABLoader
 
-
-
 class _PathManager:
     """
     Private class for file path operations.
@@ -216,10 +214,6 @@ class _PathManager:
         if pattern is None:
             return Path(iterable[1]).suffix
         return getattr(self.matching_eng, match_type)(Path(iterable[1]).suffix, pattern)
-
-
-
-
 
 class PathFinder:
     """
