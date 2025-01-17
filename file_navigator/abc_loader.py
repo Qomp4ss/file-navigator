@@ -145,4 +145,3 @@ class BaseLoader(ABLoader):
         """
         func = self._mapp[Path(path).suffix]
         return func(path, **{k:v for k, v in kwargs.items() if k in self._inspect(func)})
-    
