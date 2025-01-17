@@ -121,6 +121,8 @@ Loading all txt and csv files, grouping them by extension and filtering txt file
 >>> text_files = path_finder.find('*', '.txt|.csv', 'glob', 'regex').groupby('ext')
 >>> csv_files = text_files['.csv']
 >>> csv_files.paths
+[('transformations.csv', 'D:\\CURRENCIES\\APAC\\Calculations'),
+ ('cov_matrix.csv', 'D:\\CURRENCIES\\APAC\\Calculations')]
 >>> txt_EMEA_files = text_files['.txt'].select_paths('EMEA', 'isin')
 >>> txt_EMEA_files.paths
 [('eurgbp.txt', 'D:\\CURRENCIES\\EMEA'),
